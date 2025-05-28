@@ -40,21 +40,14 @@
     const canvas = document.getElementById("ruota");
     const ctx = canvas.getContext("2d");
     const settori = [
-      "Torino",
-      "Barberino del Mugello",
-      "Siena",
-      "Nizza, Cannes e Monaco",
-      "Lago di Braies",
-      "Via degli Dei",
-      "Maremma Toscana",
-      "Lubiana, Lago di Bled, Grotte di Postumia",
-      "Langhe – Vino",
-      "Monaco di Baviera",
-      "Praga"
+      "Torino", "Barberino del Mugello", "Siena", "Nizza, Cannes e Monaco",
+      "Lago di Braies", "Via degli Dei", "Maremma Toscana",
+      "Lubiana, Lago di Bled, Grotte di Postumia", "Langhe – Vino",
+      "Monaco di Baviera", "Praga"
     ];
 
     const total = settori.length;
-    const colors = Array.from({ length: total }, (_, i) => hsl(${i * 360 / total}, 100%, 70%));
+    const colors = Array.from({ length: total }, (_, i) => `hsl(${i * 360 / total}, 100%, 70%)`);
     let angle = 0;
     let spinning = false;
 
@@ -133,31 +126,25 @@
 
       anima();
     }
-function mostraRisultato() {
-  const anglePerSector = 2 * Math.PI / total;
 
-  // Angolo riferito alla freccia in alto
-  const adjustedAngle = (angle - Math.PI / 2 + 2 * Math.PI) % (2 * Math.PI);
+    function mostraRisultato() {
+      const anglePerSector = 2 * Math.PI / total;
+      const adjustedAngle = (angle - Math.PI / 2 + 2 * Math.PI) % (2 * Math.PI);
+      const epsilon = 0.00001;
+      const rawIndex = (total - Math.floor((adjustedAngle + epsilon) / anglePerSector)) % total;
+      const numero = ((rawIndex + 1 + total) % total) + 1;
+      const destinazione = settori[numero - 1];
 
-  // Usiamo Math.floor + una soglia per considerare l'attraversamento del settore
-  const epsilon = 0.00001; // mini correzione per evitare casi al bordo
-  const rawIndex = (total - Math.floor((adjustedAngle + epsilon) / anglePerSector)) % total;
-
-  // Manteniamo il tuo offset disegno (i - 3)
-  const numero = ((rawIndex +1 + total) % total) + 1;
-  const destinazione = settori[numero - 1];
-
-  setTimeout(() => {
-    if (confirm("Sei pronta a scoprire la prossima destinazione?")) {
       setTimeout(() => {
-        alert(✨ È uscito il numero ${numero} → ${destinazione} ✨\n\nBuon viaggio!);
-      }, 800);
+        if (confirm("Sei pronta a scoprire la prossima destinazione?")) {
+          setTimeout(() => {
+            alert(`✨ È uscito il numero ${numero} → ${destinazione} ✨\n\nBuon viaggio!`);
+          }, 800);
+        }
+      }, 100);
     }
-  }, 100);
-}
-
 
     drawWheel();
   </script>
 </body>
-</html> 
+</html>
