@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ruota della Fortuna</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    canvas {
+      margin-top: 20px;
+      background: white;
+      border: 2px solid black;
+      border-radius: 50%;
+    }
+    button {
+      margin-top: 20px;
+      padding: 15px 30px;
+      font-size: 18px;
+      border-radius: 50%;
+      background: white;
+      border: 2px solid black;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Ruota della Fortuna</h1>
+  <canvas id="ruota" width="600" height="600"></canvas>
+  <br>
+  <button onclick="giraRuota()">VORREI ANDARE...</button>
+
+  <script>
+    const canvas = document.getElementById("ruota");
+    const ctx = canvas.getContext("2d");
+    const settori = [
+      "Torino",
+      "Barberino del Mugello",
+      "Siena",
+      "Nizza, Cannes e Monaco",
+      "Lago di Braies",
+      "Via degli Dei",
+      "Maremma Toscana",
+      "Lubiana, Lago di Bled, Grotte di Postumia",
+      "Langhe – Vino",
+      "Monaco di Baviera",
+      "Praga"
+    ];
+
+    const total = settori.length;
+    const colors = Array.from({ length: total }, (_, i) => hsl(${i * 360 / total}, 100%, 70%));
+    let angle = 0;
+    let spinning = false;
+
+    function drawWheel() {
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      const radius = canvas.width / 2 - 20;
+      const anglePerSector = 2 * Math.PI / total;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(angle);
+      ctx.translate(-cx, -cy);
+
+      for (let i = 0; i < total; i++) {
+        const startAngle = i * anglePerSector;
+        const endAngle = startAngle + anglePerSector;
+
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.fillStyle = colors[i];
+        ctx.arc(cx, cy, radius, startAngle, endAngle);
+        ctx.fill();
+        ctx.stroke();
+
+        const textAngle = startAngle + anglePerSector / 2;
+        const tx = cx + radius * 0.65 * Math.cos(textAngle);
+        const ty = cy + radius * 0.65 * Math.sin(textAngle);
+
+        ctx.save();
+        ctx.translate(tx, ty);
+        ctx.rotate(textAngle);
+        ctx.fillStyle = "black";
+        ctx.font = "14px sans-serif";
+        const numero = ((i - 3 + total) % total) + 1;
+        ctx.fillText(numero, -5, 5);
+        ctx.restore();
+      }
+
+      ctx.restore();
+
+      // Disegna la freccia (fissa)
+      ctx.fillStyle = "red";
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - radius - 10);
+      ctx.lineTo(cx - 15, cy - radius + 20);
+      ctx.lineTo(cx + 15, cy - radius + 20);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function giraRuota() {
+      if (spinning) return;
+      spinning = true;
+      const giri = 5 + Math.random() * 3;
+      const velocita = giri * 2 * Math.PI;
+      const durata = 3000;
+      const inizio = Date.now();
+
+      function anima() {
+        const tempo = Date.now() - inizio;
+        const t = Math.min(tempo / durata, 1);
+        const easing = 1 - Math.pow(2, -10 * t);
+        angle = velocita * easing;
+        drawWheel();
+
+        if (t < 1) {
+          requestAnimationFrame(anima);
+        } else {
+          spinning = false;
+          mostraRisultato();
+        }
+      }
+
+      anima();
+    }
+function mostraRisultato() {
+  const anglePerSector = 2 * Math.PI / total;
+
+  // Angolo riferito alla freccia in alto
+  const adjustedAngle = (angle - Math.PI / 2 + 2 * Math.PI) % (2 * Math.PI);
+
+  // Usiamo Math.floor + una soglia per considerare l'attraversamento del settore
+  const epsilon = 0.00001; // mini correzione per evitare casi al bordo
+  const rawIndex = (total - Math.floor((adjustedAngle + epsilon) / anglePerSector)) % total;
+
+  // Manteniamo il tuo offset disegno (i - 3)
+  const numero = ((rawIndex +1 + total) % total) + 1;
+  const destinazione = settori[numero - 1];
+
+  setTimeout(() => {
+    if (confirm("Sei pronta a scoprire la prossima destinazione?")) {
+      setTimeout(() => {
+        alert(✨ È uscito il numero ${numero} → ${destinazione} ✨\n\nBuon viaggio!);
+      }, 800);
+    }
+  }, 100);
+}
+
+
+    drawWheel();
+  </script>
+</body>
+</html> 
